@@ -63,5 +63,17 @@ services:
     entrypoint: ["python", "-m", "src.producer"]
     command: ["--count", "10"]
 
+  consumer:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      init-topics:
+        condition: service_completed_successfully
+    environment:
+      BOOTSTRAP_SERVERS: kafka:19092
+      ORDERS_TOPIC: orders
+      CONSUMER_GROUP: order-aggregator
+    command: ["python", "-m", "src.consumer"]
+
 volumes:
   kafka-data:
