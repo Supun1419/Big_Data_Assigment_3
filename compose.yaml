@@ -1,10 +1,21 @@
 name: kafka-order-system
 
 services:
+  kafka-volume-init:
+    image: alpine:3.22
+    user: root
+    restart: "no"
+    volumes:
+      - kafka-data:/tmp/kraft-combined-logs
+    command: ["sh", "-c", "chown -R 1000:1000 /tmp/kraft-combined-logs"]
+
   kafka:
     image: apache/kafka:4.3.1
     hostname: kafka
     restart: unless-stopped
+    depends_on:
+      kafka-volume-init:
+        condition: service_completed_successfully
     ports:
       - "9092:9092"
     environment:
@@ -90,6 +101,12 @@ services:
       DLQ_TOPIC: orders-dlq
     entrypoint: ["python", "-m", "src.dlq_reader"]
     command: ["--max-messages", "10", "--idle-timeout", "10"]
+
+  tests:
+    build:
+      context: .
+      target: test
+    profiles: [tools]
 
 volumes:
   kafka-data:
