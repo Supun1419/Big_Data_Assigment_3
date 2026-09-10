@@ -141,15 +141,3 @@ docker compose down -v
 ```
 
 `down -v` permanently removes the local Kafka messages and consumer offsets.
-
-## Assignment requirement checklist
-
-- [x] Kafka order producer and consumer
-- [x] Avro serialization using the supplied order fields
-- [x] Randomized order prices
-- [x] Real-time running average of prices
-- [x] Retry logic for temporary failures
-- [x] Dead Letter Queue for permanent and exhausted failures
-- [x] Docker Compose environment
-- [x] Automated tests and repeatable live demonstration
-- [x] Git commit history
