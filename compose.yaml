@@ -72,8 +72,24 @@ services:
     environment:
       BOOTSTRAP_SERVERS: kafka:19092
       ORDERS_TOPIC: orders
+      RETRY_TOPIC: orders-retry
+      DLQ_TOPIC: orders-dlq
       CONSUMER_GROUP: order-aggregator
+      MAX_RETRIES: 3
+      RETRY_BASE_SECONDS: 1
     command: ["python", "-m", "src.consumer"]
+
+  dlq-reader:
+    build: .
+    profiles: [tools]
+    depends_on:
+      init-topics:
+        condition: service_completed_successfully
+    environment:
+      BOOTSTRAP_SERVERS: kafka:19092
+      DLQ_TOPIC: orders-dlq
+    entrypoint: ["python", "-m", "src.dlq_reader"]
+    command: ["--max-messages", "10", "--idle-timeout", "10"]
 
 volumes:
   kafka-data:
