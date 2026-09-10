@@ -51,5 +51,17 @@ services:
         /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:19092 --create --if-not-exists --topic orders-dlq --partitions 1 --replication-factor 1
         /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:19092 --list
 
+  producer:
+    build: .
+    profiles: [tools]
+    depends_on:
+      init-topics:
+        condition: service_completed_successfully
+    environment:
+      BOOTSTRAP_SERVERS: kafka:19092
+      ORDERS_TOPIC: orders
+    entrypoint: ["python", "-m", "src.producer"]
+    command: ["--count", "10"]
+
 volumes:
   kafka-data:
